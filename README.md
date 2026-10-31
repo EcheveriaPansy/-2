@@ -30,7 +30,7 @@ uint32_t   lastTick = 0;
 ~~~
 
 - Timer Interrupt(定时器中断）  
-  实现原理：CubeMX中配置一个定时器TIM2，使其配置为500ms溢出中断，在回调函数里直接切换 LED 。  
+  实现原理：CubeMX中配置一个定时器TIM2，。 TIM2 挂在 APB1（36MHz）上，由于 APB1 分频系数 ≠1，定时器实际时钟 = 2×APB1 = 72MHz。设置分频 PSC=7199 把计数频率降到 10kHz（0.1ms/次），ARR=4999 让计数器每 5000 次（即 500ms）溢出一次并触发更新中断。中断里 HAL_TIM_IRQHandler 清标志并调用 HAL_TIM_PeriodElapsedCallback，在其中用状态机轮流点亮三盏灯。主循环无需任何延时，可同时处理其他任务。
 > 核心代码片段：  
 ~~~
 
